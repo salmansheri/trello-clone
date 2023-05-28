@@ -9,59 +9,53 @@ export const getTodosGroupedByColumn = async () => {
   const todos = data.documents;
 
   const columns = todos.reduce((acc, todo) => {
-    if(!acc.get(todo.status)) {
-        acc.set(todo.status, {
-            id: todo.status, 
-            todos: []
-        })
+    if (!acc.get(todo.status)) {
+      acc.set(todo.status, {
+        id: todo.status,
+        todos: [],
+      });
     }
 
     acc.get(todo.status)!.todos.push({
-        $id: todo.$id,
-        $createdAt: todo.$createdAt,
-        title: todo.title,
-        status: todo.status,
+      $id: todo.$id,
+      $createdAt: todo.$createdAt,
+      title: todo.title,
+      status: todo.status,
 
-        // get the image if it exists on the todo 
-        ...(todo.image && { image: JSON.parse(todo.image) })
-    }); 
+      // get the image if it exists on the todo
+      ...(todo.image && { image: JSON.parse(todo.image) }),
+    });
 
-    return acc; 
+    return acc;
+  }, new Map<TypedColumns, Column>());
 
+  // if columns doesnt have inProgress, todo and done, add then with empty todos
 
-     
-  }, new Map<TypedColumns, Column>); 
+  const columnTypes: TypedColumns[] = ["todo", "inProgress", "done"];
 
-  // if columns doesnt have inProgress, todo and done, add then with empty todos  
-
-  const columnTypes: TypedColumns[] = ['todo', 'inProgress', 'done']
-
-  for(const columnType of columnTypes) {
-    if(!columns.get(columnType)) {
+  for (const columnType of columnTypes) {
+    if (!columns.get(columnType)) {
       columns.set(columnType, {
-        id: columnType, 
+        id: columnType,
         todos: [],
-      })
+      });
     }
-
   }
 
-  console.log(columns); 
+  console.log(columns);
 
   // sort the columns by columnTypes
-  
- const sortedColumns = new Map(
-  // @ts-ignore
+
+  const sortedColumns = new Map(
+    // @ts-ignore
     Array.from(columns.entries()).sort((a, b) => {
-      columnTypes.indexOf(a[0]) - columnTypes.indexOf(b[0])
+      columnTypes.indexOf(a[0]) - columnTypes.indexOf(b[0]);
     })
- ); 
+  );
 
- const board: Board =  {
-  columns: sortedColumns
- }
+  const board: Board = {
+    columns: sortedColumns,
+  };
 
- return board; 
-
-
+  return board;
 };
